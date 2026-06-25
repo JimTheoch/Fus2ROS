@@ -31,6 +31,7 @@ Install them with:
 
 pip install scipy pyyaml
 
+---
 
 ## 🚀 Installation
 Clone or download this repository.
@@ -44,6 +45,9 @@ macOS: ~/Library/Application Support/Autodesk/Autodesk Fusion 360/API/AddIns/
 Start Fusion 360, go to Add-Ins → Add-Ins Manager → find Fus2ROS → check Run on Startup.
 
 The exporter will appear under the Add-Ins tab.
+
+---
+
 
 ## 🧠 How to Use
 Open your robot assembly in Fusion 360.
