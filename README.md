@@ -28,7 +28,7 @@
   - `pyyaml`
 
 Install them with:
-```bash
+
 pip install scipy pyyaml
 
 
