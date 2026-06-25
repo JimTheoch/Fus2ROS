@@ -1,0 +1,11 @@
+{
+	"autodeskProduct": "Fusion360",
+	"type": "addin",
+	"author": "JimTheoch",
+	"description": {
+		"": "Export STL and URDF/Xacro files for ROS robotics projects directly from Fusion 360"
+	},
+	"supportedOS": "windows|mac",
+	"editEnabled": true,
+	"main": "Fus2ROS.py"
+}
