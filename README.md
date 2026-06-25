@@ -3,21 +3,33 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Fus2ROS** is a Fusion 360 add-in that exports your CAD models to **URDF/Xacro** files for use in **ROS, Gazebo, MoveIt, and pyBullet**. It automatically extracts joints, links, inertia, meshes, and material properties from your Fusion 360 assembly.
+> **⚠️ Note:** This add-in is under active development. Some features (particularly deep nested components) are still experimental.
 
 ---
 
-## ✨ Features
+## ✨ Current Features
 
-- **Export URDF or Xacro** with a single click
+- **Export URDF or Xacro** – choose plain URDF or ROS2-style Xacro
 - **Automatic joint detection** – revolute, prismatic, fixed, continuous
-- **Deep nested component support** – handles complex assemblies with multiple levels
-- **Duplicate instance detection** – prevents invalid URDF structures
-- **Material and color export** – preserves appearances
+- **Duplicate instance detection** – identifies and warns about duplicate components
+- **Material and color export** – preserves appearances (embedded in URDF or external materials file)
 - **Custom root link selection** – choose any component as the base of your robot
 - **ROS2 package generation** – ready-to-use packages for `rviz2`, `Gazebo`, and `MoveIt`
 - **pyBullet support** – generates a `hello_bullet.py` script for testing
+- **Inertia and mass extraction** – with configurable precision (Low/Medium/Max)
+- **STL mesh export** – with sub-mesh support for individual bodies
 
 ---
+
+## 🧪 Experimental / Work in Progress
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Nested components (1 level) | ✅ Supported | Single-level assemblies work correctly |
+| Deep nested components (2+ levels) | 🚧 In Progress | Complex hierarchies may have issues with transforms |
+| Cylindrical joints | ⚠️ Unsupported | Will be exported as "Cylindrical_unsupported" |
+| Ball joints | ⚠️ Unsupported | Will be exported as "Ball_unsupported" |
+| Pin-slot joints | ⚠️ Unsupported | Will be exported as "PinSlot_unsupported" |
 
 ## 📦 Requirements
 
