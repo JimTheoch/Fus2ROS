@@ -90,7 +90,7 @@ Generate – the exporter will create a complete ROS/ROS2 package or URDF file.
 🔧 Supported Joint Types
 
 | Type | Status |
-|---------|--------|
+|------|--------|
 |Rigid (fixed)	| ✅ Supported |
 |Revolute or continuous	| ✅ Supported |
 |Slider	prismatic	| ✅ Supported |
