@@ -76,31 +76,6 @@ Generate – the exporter will create a complete ROS/ROS2 package or URDF file.
 
 ---
 
-📁 Output Structure
-For ROS2 packages (rviz, Gazebo, MoveIt):
-
-text
-<robot_name>_description/
-├── CMakeLists.txt
-├── package.xml
-├── urdf/
-│   ├── <robot_name>.xacro
-│   └── materials.xacro
-├── meshes/
-│   └── *.stl
-└── launch/
-    ├── robot_description.launch.py
-    ├── gazebo.launch.py
-    └── urdf.rviz
-    
-For plain URDF/Xacro:
-
-text
-<robot_name>.urdf
-meshes/*.stl
-
----
-
 🔧 Supported Joint Types
 Fusion Joint Type	URDF Type
 Rigid (fixed)	
