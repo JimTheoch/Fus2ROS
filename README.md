@@ -1,6 +1,7 @@
 # Fus2ROS – Fusion 360 to ROS/URDF Exporter
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 
 **Fus2ROS** is a Fusion 360 add-in that exports your CAD models to **URDF/Xacro** files for use in **ROS, Gazebo, MoveIt, and pyBullet**. It automatically extracts joints, links, inertia, meshes, and material properties from your Fusion 360 assembly.
 > **⚠️ Note:** This add-in is under active development. Some features (particularly deep nested components) are still experimental.
