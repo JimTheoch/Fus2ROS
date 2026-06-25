@@ -74,3 +74,61 @@ Preview the joint hierarchy before exporting.
 
 Generate – the exporter will create a complete ROS/ROS2 package or URDF file.
 
+---
+
+📁 Output Structure
+For ROS2 packages (rviz, Gazebo, MoveIt):
+
+text
+<robot_name>_description/
+├── CMakeLists.txt
+├── package.xml
+├── urdf/
+│   ├── <robot_name>.xacro
+│   └── materials.xacro
+├── meshes/
+│   └── *.stl
+└── launch/
+    ├── robot_description.launch.py
+    ├── gazebo.launch.py
+    └── urdf.rviz
+    
+For plain URDF/Xacro:
+
+text
+<robot_name>.urdf
+meshes/*.stl
+
+---
+
+🔧 Supported Joint Types
+Fusion Joint Type	URDF Type
+Rigid (fixed)	
+Revolute (partly or continuous)
+Slider/prismatic
+(Warning) Cylindrical -> unsupported
+Planar	(limited)
+
+---
+
+🤝 Contributing
+Contributions, bug reports, and feature requests are welcome! Feel free to open an issue or a pull request.
+
+---
+
+📄 License
+This project is licensed under the MIT License – see the LICENSE file for details.
+
+---
+
+
+🌟 Acknowledgements
+Fus2ROS is built upon the work of:
+
+syuntoku14 – original Fusion2URDF
+
+yanshil – Fusion2PyBullet
+
+cadop – refinements
+
+apric0ts – improvements
