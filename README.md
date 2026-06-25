@@ -125,7 +125,7 @@ This project is licensed under the MIT License – see the LICENSE file for deta
 🌟 Acknowledgements
 Fus2ROS is built upon the work of:
 
-cadop - fusion360descriptor
+cadop - fusion360descriptor [Main inspiration]
 
 syuntoku14 – original Fusion2URDF
 
