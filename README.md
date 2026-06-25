@@ -31,9 +31,8 @@ Install them with:
 ```bash
 pip install scipy pyyaml
 
----
 
-🚀 Installation
+## 🚀 Installation
 Clone or download this repository.
 
 Copy the folder to your Fusion 360 Add-ins directory:
@@ -46,7 +45,7 @@ Start Fusion 360, go to Add-Ins → Add-Ins Manager → find Fus2ROS → check R
 
 The exporter will appear under the Add-Ins tab.
 
-🧠 How to Use
+## 🧠 How to Use
 Open your robot assembly in Fusion 360.
 
 Go to Add-Ins → Fus2ROS.
