@@ -97,6 +97,8 @@ Planar	planar	🚧 Limited support
 Ball	Ball_unsupported	⚠️ Warning only
 Pin-slot	PinSlot_unsupported	⚠️ Warning only
 
+---
+
 🐛 Known Issues
 Deep nested components (3+ levels) may have incorrect transform calculations
 
