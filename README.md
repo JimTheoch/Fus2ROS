@@ -89,19 +89,15 @@ Generate – the exporter will create a complete ROS/ROS2 package or URDF file.
 ---
 🔧 Supported Joint Types
 
-Rigid (fixed)	✅ Supported
-
-Revolute or continuous	✅ Supported
-
-Slider	prismatic	✅ Supported
-
-Cylindrical	unsupported	⚠️ Warning only
-
-Planar	🚧 Limited support
-
-Ball	unsupported	⚠️ Warning only
-
-Pin-slot	unsupported	⚠️ Warning only
+| Type | Status |
+|---------|--------|
+|Rigid (fixed)	| ✅ Supported |
+|Revolute or continuous	| ✅ Supported |
+|Slider	prismatic	| ✅ Supported |
+|Cylindrical	| unsupported	⚠️ |
+|Planar	| 🚧 Limited support |
+|Ball	| unsupported	⚠️ |
+|Pin-slot	| unsupported	⚠️ |
 
 ---
 
