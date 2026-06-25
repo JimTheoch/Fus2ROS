@@ -87,14 +87,22 @@ Preview the joint hierarchy before exporting.
 Generate – the exporter will create a complete ROS/ROS2 package or URDF file.
 
 ---
-
 🔧 Supported Joint Types
-Fusion Joint Type	URDF Type
-Rigid (fixed)	
-Revolute (partly or continuous)
-Slider/prismatic
-(Warning) Cylindrical -> unsupported
-Planar	(limited)
+Fusion Joint Type	URDF Type	Status
+Rigid (fixed)	fixed	✅ Supported
+Revolute	revolute or continuous	✅ Supported
+Slider	prismatic	✅ Supported
+Cylindrical	Cylindrical_unsupported	⚠️ Warning only
+Planar	planar	🚧 Limited support
+Ball	Ball_unsupported	⚠️ Warning only
+Pin-slot	PinSlot_unsupported	⚠️ Warning only
+
+🐛 Known Issues
+Deep nested components (3+ levels) may have incorrect transform calculations
+
+Some joints with Health State errors are automatically skipped (warning logged)
+
+Materials with non-ASCII characters (e.g., German umlauts) are converted but may have naming issues
 
 ---
 
