@@ -10,7 +10,7 @@ https://img.shields.io/badge/ROS_2-Foxy%252B-brightgreen
 **Fus2ROS** is a powerful Fusion 360 add‑in that exports your CAD assemblies to URDF/Xacro files, ready for ROS, Gazebo, MoveIt, and pyBullet.
 It automatically extracts joints, links, inertia, meshes, and material properties – and now generates complete ROS 1/2 packages with launch files, configuration, and all dependencies.
 
-> **🚀 New:** The exporter now creates fully customised ROS 2 packages (rviz, Gazebo, MoveIt) with your robot’s name, replacing %ROBOT_NAME% in all templates.
+> **🚀 New:** The exporter now creates fully customised ROS 2 packages (rviz, Gazebo, MoveIt) with your chosen robot’s name.
 > **⚠️ Note:** This add-in is under active development. Some features (particularly deep nested components) are still experimental.
 
 ---
