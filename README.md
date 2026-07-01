@@ -15,7 +15,7 @@ It automatically extracts joints, links, inertia, meshes, and material propertie
 
 ---
 
-##🧪 Supported ROS Platforms
+## 🧪 Supported ROS Platforms
 
 |Platform	|ROS 1 (Kinetic+)	|ROS 2 (Foxy+) |
 |---------|-----------------|--------------|
@@ -93,9 +93,9 @@ Save Directory – where to save the package
 
 Robot Name – name of your robot
 
-Export Format – URDF (plain) or Xacro (ROS2-style)
+ROS Version – ROS 1 or ROS 2
 
-Target Platform – None, pyBullet, rviz, Gazebo, or MoveIt
+Target Platform – URDF, Xacro, pyBullet, rviz, Gazebo, or MoveIt
 
 Mesh Resolution – Low, Medium, Max
 
