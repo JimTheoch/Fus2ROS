@@ -2,8 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
-https://img.shields.io/badge/License-MIT-yellow.svg
-https://img.shields.io/badge/python-3.7+-blue.svg
+
 https://img.shields.io/badge/ROS_1-Kinetic%252B-brightgreen
 https://img.shields.io/badge/ROS_2-Foxy%252B-brightgreen
 
@@ -13,6 +12,17 @@ It automatically extracts joints, links, inertia, meshes, and material propertie
 
 > **🚀 New:** The exporter now creates fully customised ROS 2 packages (rviz, Gazebo, MoveIt) with your robot’s name, replacing %ROBOT_NAME% in all templates.
 > **⚠️ Note:** This add-in is under active development. Some features (particularly deep nested components) are still experimental.
+
+---
+
+##🧪 Supported ROS Platforms
+
+|Platform	|ROS 1 (Kinetic+)	|ROS 2 (Foxy+) |
+|---------|-----------------|--------------|
+|rviz (visualisation)	|✅	|✅ |
+|Gazebo (simulation)	|✅	|✅ |
+|MoveIt (motion planning)	|✅	|✅ |
+|pyBullet (physics)	|✅	|– |
 
 ---
 
