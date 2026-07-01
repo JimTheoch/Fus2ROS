@@ -109,7 +109,7 @@ Preview the joint hierarchy before exporting.
 Generate – the exporter will create a complete ROS/ROS2 package or URDF file.
 
 ---
-🔧 Supported Joint Types
+## 🔧 Supported Joint Types
 
 | Type | Status |
 |------|--------|
@@ -123,7 +123,7 @@ Generate – the exporter will create a complete ROS/ROS2 package or URDF file.
 
 ---
 
-🐛 Known Issues
+## 🐛 Known Issues
 Deep nested components (3+ levels) may have incorrect transform calculations
 
 Some joints with Health State errors are automatically skipped (warning logged)
@@ -132,18 +132,18 @@ Materials with non-ASCII characters (e.g., German umlauts) are converted but may
 
 ---
 
-🤝 Contributing
+## 🤝 Contributing
 Contributions, bug reports, and feature requests are welcome! Feel free to open an issue or a pull request.
 
 ---
 
-📄 License
+## 📄 License
 This project is licensed under the MIT License – see the LICENSE file for details.
 
 ---
 
 
-🌟 Acknowledgements
+## 🌟 Acknowledgements
 Fus2ROS is built upon the work of:
 
 cadop - fusion360descriptor [Main inspiration]
