@@ -16,9 +16,9 @@ def generate_launch_description():
             " ",
             PathJoinSubstitution(
                 [
-                    FindPackageShare("fusion2urdf"),
+                    FindPackageShare("%ROBOT_NAME%"),
                     "urdf",
-                    "fusion2urdf.xacro",
+                    "%ROBOT_NAME%.xacro",
                 ]
             ),
 
@@ -44,7 +44,7 @@ def generate_launch_description():
     ###### RVIZ ######
     rviz_config_file = PathJoinSubstitution(
         [
-            FindPackageShare("fusion2urdf"),
+            FindPackageShare("%ROBOT_NAME%"),
             "launch",
             "urdf.rviz",
         ]
@@ -73,11 +73,11 @@ def generate_launch_description():
 
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description',
-                                   '-entity', 'fusion2urdf'],
+                                   '-entity', '%ROBOT_NAME%'],
                         output='both')
 
     # Add the install path model path
-    gazebo_env = AppendEnvironmentVariable("GAZEBO_MODEL_PATH", PathJoinSubstitution([get_package_prefix("fusion2urdf"), "share"]))
+    gazebo_env = AppendEnvironmentVariable("GAZEBO_MODEL_PATH", PathJoinSubstitution([get_package_prefix("%ROBOT_NAME%"), "share"]))
 
     return LaunchDescription([
         gazebo_env,

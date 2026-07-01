@@ -36,7 +36,6 @@ def visible_to_stl(
         list of all bodies to use for stl export
     """
 
-    # create a single exportManager instance
     exporter = design.exportManager
 
     newDoc: adsk.core.Document = _app.documents.add(adsk.core.DocumentTypes.FusionDesignDocumentType, True)
@@ -44,10 +43,9 @@ def visible_to_stl(
     assert isinstance(newDes, adsk.fusion.Design)
     newRoot = newDes.rootComponent
 
-    # get the script location
     save_dir = os.path.join(save_dir, "meshes")
     try:
-        os.mkdir(save_dir)
+        os.makedirs(save_dir, exist_ok=True)
     except:
         pass
 
@@ -56,7 +54,6 @@ def visible_to_stl(
             if not bodies:
                 continue
 
-            # Create a new exporter in case its a memory thing
             exporter = design.exportManager
 
             occName = utils.format_name(name)
@@ -106,15 +103,20 @@ def stl_exporter(exportMgr, accuracy, newRoot, body_lst, filename):
 
 class Writer:
 
-    def __init__(self, save_dir: str, config: Configurator, export_format: Optional[str] = None) -> None:
+    def __init__(self, save_dir: str, config: Configurator, export_format: Optional[str] = None, ros_version: Optional[str] = "ROS 2", robot_name: Optional[str] = None) -> None:
         self.save_dir = save_dir
         self.config = config
         self.export_format = export_format  # 'URDF' or 'Xacro'
+        self.ros_version = ros_version      # 'ROS 1' or 'ROS 2'
+        self.robot_name = robot_name        # name of the robot (for package name)
+
+        if not self.robot_name:
+            self.robot_name = config.name
 
     def write_urdf(self) -> None:
         """Write each component of the xml structure to file, in URDF or Xacro format."""
         try:
-            os.mkdir(self.save_dir)
+            os.makedirs(self.save_dir, exist_ok=True)
         except:
             pass
 
@@ -130,7 +132,6 @@ class Writer:
         """Write a plain URDF file with materials defined inside <robot>."""
         file_name = os.path.join(self.save_dir, f"{self.config.name}.urdf")
 
-        # Select links/joints (with or without extra_links)
         if self.config.extra_links:
             links = self.config.links.copy()
             for link in self.config.extra_links:
@@ -144,30 +145,23 @@ class Writer:
             links = self.config.links
             joints = self.config.joints
 
-        # Write the main URDF (with embedded materials)
         self._write_urdf_xml(file_name, links, joints, embed_materials=True)
-
-        # No separate materials.urdf needed
-        # (we skip _write_materials_urdf)
 
     def _write_urdf_xml(self, file_name: str, links: Dict[str, Link], joints: Dict[str, Joint], embed_materials: bool = True):
         """Write plain URDF XML. If embed_materials=True, materials are defined inside <robot>."""
         robot = Element("robot", {"name": self.config.name})
 
-        # ---- Material embedding ----
         if embed_materials:
             for color_name, rgba in self.config.color_dict.items():
                 mat = SubElement(robot, "material", {"name": color_name})
                 SubElement(mat, "color", {"rgba": rgba})
 
-        # Add dummy link
         SubElement(robot, "link", {"name": "dummy_link"})
         assert self.config.base_link is not None
         dummy_joint = SubElement(robot, "joint", {"name": "dummy_link_joint", "type": "fixed"})
         SubElement(dummy_joint, "parent", {"link": "dummy_link"})
         SubElement(dummy_joint, "child", {"link": self.config.base_link_name})
 
-        # Add links and joints
         for _, link in links.items():
             xml = link.link_xml()
             if xml is not None:
@@ -185,7 +179,7 @@ class Writer:
     # XACRO – separate materials file with xacro:include
     # ============================================================
     def _write_xacro(self):
-        """Original xacro-based write method."""
+        """Write Xacro files (main + materials)."""
         file_name = os.path.join(self.save_dir, f"{self.config.name}.xacro")
         if self.config.extra_links:
             links = self.config.links.copy()
@@ -202,7 +196,6 @@ class Writer:
         else:
             self._write_xacro_xml(file_name, self.config.links, self.config.joints)
 
-        # Materials as separate file (with xacro namespace)
         material_file_name = os.path.join(self.save_dir, f"materials.xacro")
         self._write_materials_xacro(material_file_name)
 
@@ -219,9 +212,9 @@ class Writer:
 
     def _write_xacro_xml(self, file_name: str, links: Dict[str, Link], joints: Dict[str, Joint]):
         robot = Element("robot", {"xmlns:xacro": "http://www.ros.org/wiki/xacro", "name": self.config.name})
-        SubElement(robot, "xacro:include", {"filename": f"$(find {self.config.name})/urdf/materials.xacro"})
+        robot_name = self.robot_name if self.robot_name else self.config.name
+        SubElement(robot, "xacro:include", {"filename": f"$(find {robot_name})/urdf/materials.xacro"})
 
-        # Add dummy link
         SubElement(robot, "link", {"name": "dummy_link"})
         assert self.config.base_link is not None
         dummy_joint = SubElement(robot, "joint", {"name": "dummy_link_joint", "type": "fixed"})
@@ -243,31 +236,20 @@ class Writer:
 
 
 # =============================================================================
-# Helper functions (pyBullet, ROS2, Gazebo, MoveIt)
+# Helpers (pyBullet, ROS1/ROS2 templates)
 # =============================================================================
 
 def write_hello_pybullet(robot_name, save_dir) -> None:
-    """Writes a sample script which loads the URDF in pybullet
-
-    Modified from https://github.com/yanshil/Fusion2PyBullet
-
-    Parameters
-    ----------
-    robot_name : str
-        name to use for directory
-    save_dir : str
-        path to store file
-    """
-
-    robot_urdf = f"{robot_name}.urdf"  ## basename of robot.urdf
+    """Writes a sample script which loads the URDF in pybullet"""
+    robot_urdf = f"{robot_name}.urdf"
     file_name = os.path.join(save_dir, "hello_bullet.py")
     hello_pybullet = """
 import pybullet as p
 import os
 import time
 import pybullet_data
-physicsClient = p.connect(p.GUI)#or p.DIRECT for non-graphical version
-p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
+physicsClient = p.connect(p.GUI)
+p.setAdditionalSearchPath(pybullet_data.getDataPath())
 p.setGravity(0,0,-10)
 planeId = p.loadURDF("plane.urdf")
 cubeStartPos = [0,0,0]
@@ -277,7 +259,6 @@ robot_urdf = "TEMPLATE.urdf"
 dir = os.path.join(dir,'urdf')
 robot_urdf=os.path.join(dir,robot_urdf)
 robotId = p.loadURDF(robot_urdf,cubeStartPos, cubeStartOrientation, 
-                   # useMaximalCoordinates=1, ## New feature in Pybullet
                    flags=p.URDF_USE_INERTIA_FROM_FILE)
 for i in range (10000):
     p.stepSimulation()
@@ -292,97 +273,94 @@ p.disconnect()
         f.write("\n")
 
 
-def copy_ros2(save_dir, package_name) -> None:
-    # Use current directory to find `package_ros2`
-    package_ros2_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__))) + "/package_ros2/"
-    copy_package(save_dir, package_ros2_path)
-    update_cmakelists(save_dir, package_name)
-    update_package_xml(save_dir, package_name)
-    update_package_name(save_dir + "/launch/robot_description.launch.py", package_name)
+# -----------------------------------------------------------------------------
+# ΝΕΑ: Ενιαία συνάρτηση αντιγραφής template
+# -----------------------------------------------------------------------------
+def copy_template(save_dir: str, robot_name: str, ros_version: str, target_platform: str) -> None:
+    """
+    Αντιγράφει το κατάλληλο template από το φάκελο templates/ros{1,2}/{target_platform}/
+    και αντικαθιστά το placeholder %ROBOT_NAME% σε όλα τα αρχεία.
+
+    Parameters
+    ----------
+    save_dir : str
+        φάκελος προορισμού (π.χ. Harper_Final_description/)
+    robot_name : str
+        όνομα του ρομπότ (αντικαθιστά το %ROBOT_NAME%)
+    ros_version : str
+        'ROS 1' ή 'ROS 2'
+    target_platform : str
+        'rviz', 'Gazebo', 'MoveIt' (case-sensitive)
+    """
+    # Προσδιορισμός του φακέλου ROS
+    ros_folder = "ros1" if ros_version == "ROS 1" else "ros2"
+    # Χαρτογράφηση του target_platform στο όνομα του υποφακέλου (προσοχή σε κεφαλαία)
+    platform_map = {
+        "rviz": "rviz",
+        "Gazebo": "gazebo",
+        "MoveIt": "moveit",
+    }
+    platform_folder = platform_map.get(target_platform)
+    if not platform_folder:
+        utils.log(f"WARNING: Unknown target platform '{target_platform}'. Skipping template copy.")
+        return
+
+    # Βάση του φακέλου templates
+    template_base = os.path.dirname(os.path.abspath(os.path.dirname(__file__))) + "/templates/"
+    template_dir = os.path.join(template_base, ros_folder, platform_folder)
+
+    # Έλεγχος ύπαρξης του φακέλου
+    if not os.path.exists(template_dir):
+        utils.log(f"ERROR: Template folder '{template_dir}' does not exist. Skipping.")
+        return
+
+    # Αντιγραφή του template
+    copy_package(save_dir, template_dir)
+
+    # Ενημέρωση όλων των αρχείων με το %ROBOT_NAME%
+    # 1. CMakeLists.txt και package.xml
+    update_file(save_dir + "/CMakeLists.txt", robot_name)
+    update_file(save_dir + "/package.xml", robot_name)
+
+    # 2. Όλα τα αρχεία στον φάκελο launch/
+    launch_dir = os.path.join(save_dir, "launch")
+    if os.path.exists(launch_dir):
+        for root, dirs, files in os.walk(launch_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                update_file(file_path, robot_name)
+
+    # 3. (Προαιρετικά) το urdf.rviz (δεν περιέχει %ROBOT_NAME% συνήθως, αλλά το κάνουμε για σιγουριά)
+    rviz_file = os.path.join(launch_dir, "urdf.rviz")
+    if os.path.exists(rviz_file):
+        update_file(rviz_file, robot_name)
 
 
-def copy_gazebo(save_dir, package_name) -> None:
-    # Use current directory to find `gazebo_package`
-    gazebo_package_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__))) + "/gazebo_package/"
-    copy_package(save_dir, gazebo_package_path)
-    update_cmakelists(save_dir, package_name)
-    update_package_xml(save_dir, package_name)
-    update_package_name(save_dir + "/launch/robot_description.launch.py", package_name)  # Also include rviz alone
-    update_package_name(save_dir + "/launch/gazebo.launch.py", package_name)
-
-
-def copy_moveit(save_dir, package_name) -> None:
-    # Use current directory to find `moveit_package`
-    moveit_package_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__))) + "/moveit_package/"
-    copy_package(save_dir, moveit_package_path)
-    update_cmakelists(save_dir, package_name)
-    update_package_xml(save_dir, package_name)
-    update_package_name(save_dir + "/launch/setup_assistant.launch.py", package_name)
-
-
-def copy_package(save_dir, package_dir) -> None:
+def copy_package(save_dir: str, package_dir: str) -> None:
+    """Copy a package template directory."""
     try:
-        os.mkdir(save_dir + "/launch")
+        os.makedirs(save_dir + "/launch", exist_ok=True)
     except:
         pass
     try:
-        os.mkdir(save_dir + "/urdf")
+        os.makedirs(save_dir + "/urdf", exist_ok=True)
     except:
         pass
     copytree(package_dir, save_dir, dirs_exist_ok=True)
 
 
-# =============================================================================
-# Safe file update functions (without fileinput)
-# =============================================================================
-
-def update_cmakelists(save_dir, package_name) -> None:
-    """Replaces the project name in CMakeLists.txt in a safe way."""
-    file_name = save_dir + "/CMakeLists.txt"
+def update_file(file_path: str, robot_name: str) -> None:
+    """
+    Βοηθητική συνάρτηση που αντικαθιστά όλες τις εμφανίσεις του '%ROBOT_NAME%'
+    στο περιεχόμενο ενός αρχείου με το όνομα του ρομπότ.
+    """
     try:
-        with open(file_name, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-    except FileNotFoundError:
-        return  # if the file doesn't exist, just ignore
-
-    with open(file_name, 'w', encoding='utf-8') as f:
-        for line in lines:
-            if "project(fusion2urdf)" in line:
-                f.write("project(" + package_name + ")\n")
-            else:
-                f.write(line)
-
-
-def update_package_name(file_name, package_name) -> None:
-    """Replaces 'fusion2urdf' with the package name in a file."""
-    try:
-        with open(file_name, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
     except FileNotFoundError:
         return
 
-    with open(file_name, 'w', encoding='utf-8') as f:
-        for line in lines:
-            if "fusion2urdf" in line:
-                f.write(line.replace("fusion2urdf", package_name))
-            else:
-                f.write(line)
+    content = content.replace("%ROBOT_NAME%", robot_name)
 
-
-def update_package_xml(save_dir, package_name) -> None:
-    """Updates package.xml with the package name."""
-    file_name = save_dir + "/package.xml"
-    try:
-        with open(file_name, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-    except FileNotFoundError:
-        return
-
-    with open(file_name, 'w', encoding='utf-8') as f:
-        for line in lines:
-            if "<name>" in line:
-                f.write("  <name>" + package_name + "</name>\n")
-            elif "<description>" in line:
-                f.write("<description>The " + package_name + " package</description>\n")
-            else:
-                f.write(line)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)

@@ -14,9 +14,9 @@ def generate_launch_description():
             " ",
             PathJoinSubstitution(
                 [
-                    FindPackageShare("fusion2urdf"),
+                    FindPackageShare("%ROBOT_NAME%"),
                     "urdf",
-                    "fusion2urdf.xacro",
+                    "%ROBOT_NAME%.xacro",
                 ]
             ),
 
@@ -41,7 +41,7 @@ def generate_launch_description():
 
     rviz_config_file = PathJoinSubstitution(
         [
-            FindPackageShare("fusion2urdf"),
+            FindPackageShare("%ROBOT_NAME%"),
             "launch",
             "urdf.rviz",
         ]

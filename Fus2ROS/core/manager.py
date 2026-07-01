@@ -25,31 +25,38 @@ class Manager:
     manual_root: str = ""
 
     def __init__(self, save_dir, robot_name, save_mesh, sub_mesh, mesh_resolution, inertia_precision,
-                target_units, target_platform, config_file, selected_root=None) -> None:
+                target_units, target_platform, ros_version, config_file, selected_root=None) -> None:
         '''Initialization of Manager class 
 
         Parameters
         ----------
         save_dir : str
             path to directory for storing data
+        robot_name : str
+            name of the robot (used for package name and file names)
         save_mesh : bool
             if mesh data should be exported
+        sub_mesh : bool
+            if sub-mesh export is enabled
         mesh_resolution : str
             quality of mesh conversion
         inertia_precision : str
             quality of inertia calculations
-        document_units : str
-            base units of current file
         target_units : str
             target files units
         target_platform : str
             which configuration to use for exporting urdf
+        ros_version : str
+            ROS version to generate packages for ('ROS 1' or 'ROS 2')
+        config_file : str
+            optional config file path
         selected_root : str
             manually selected root component name from dropdown
         '''        
         self.save_mesh = save_mesh
         self.sub_mesh = sub_mesh
         self.selected_root = selected_root
+        self.robot_name = robot_name  # Store robot name
 
         assert self.design is not None
 
@@ -58,7 +65,7 @@ class Manager:
         elif self.design.unitsManager.defaultLengthUnits=='cm': doc_u = 0.01
         elif self.design.unitsManager.defaultLengthUnits=='m': doc_u = 1.0
         else:
-            raise ValueError(f"Inexpected document units: '{self.design.unitsManager.defaultLengthUnits}'")
+            raise ValueError(f"Unexpected document units: '{self.design.unitsManager.defaultLengthUnits}'")
 
         tar_u = 1.0
         if target_units=='mm': tar_u = 0.001
@@ -84,14 +91,14 @@ class Manager:
         
         # set the target platform
         self.target_platform = target_platform
+        self.ros_version = ros_version  # 'ROS 1' or 'ROS 2'
+        
         # Export format (URDF or Xacro) – will be used if target_platform is 'URDF' or 'Xacro'
         # For other platforms (pyBullet, rviz, etc.), we still write Xacro by default
         if target_platform in ['URDF', 'Xacro']:
             self.export_format = target_platform
         else:
             self.export_format = 'Xacro'  # default for ROS packages
-
-        self.robot_name = robot_name
 
         self.name_map: Dict[str, str] = {}
         self.merge_links: Dict[str, List[str]] = {}
@@ -105,7 +112,7 @@ class Manager:
                 raise(ValueError(f"Malformed config '{config_file}': top level should be a dictionary"))
             wrong_keys = set(configuration).difference([
                 "RobotName", "SaveMesh", "SubMesh", "MeshResolution", "InertiaPrecision",
-                "TargetUnits", "TargetPlatform", "NameMap", "MergeLinks",
+                "TargetUnits", "TargetPlatform", "ROSVersion", "NameMap", "MergeLinks",
                 "Locations", "Extras", "Root",
             ])
             if wrong_keys:
@@ -123,11 +130,17 @@ class Manager:
             if self.locations is None:
                 self.locations = {}
             self.root_name = configuration.get("Root")
+            if configuration.get("ROSVersion") is not None:
+                self.ros_version = configuration.get("ROSVersion")
+            # If config file has RobotName, use it (but UI selection overrides)
+            if configuration.get("RobotName") is not None and not self.robot_name:
+                self.robot_name = configuration.get("RobotName")
             
         if selected_root:
             self.root_name = selected_root
             utils.log(f"Using manually selected root: {self.root_name}")
 
+        # Set directory and package name
         self._set_dir(save_dir)
 
     def _set_dir(self, save_dir):
@@ -138,6 +151,7 @@ class Manager:
         save_dir : str
             path to save
         '''        
+        # Use robot_name for package name
         package_name = self.robot_name + '_description'
         self.save_dir = os.path.join(save_dir, package_name)
         try: os.mkdir(self.save_dir)
@@ -161,7 +175,6 @@ class Manager:
     @staticmethod
     def get_git_info() -> str:
         return None
-        # (unchanged – kept for reference)
 
     def run(self):
         ''' process the scene, including writing to directory and
@@ -187,8 +200,8 @@ class Manager:
         # Generate URDF/Xacro
         utils.log(f"*** Generating {self.target_platform} under {os.path.realpath(self.save_dir)} ***")
         self.urdf_dir = os.path.join(self.save_dir,'urdf')
-        # Create the Writer with the format option
-        writer = io.Writer(self.urdf_dir, config, export_format=self.export_format)
+        # Create the Writer with format, ros_version, and robot_name
+        writer = io.Writer(self.urdf_dir, config, export_format=self.export_format, ros_version=self.ros_version, robot_name=self.robot_name)
         writer.write_urdf()
 
         if config.locs:
@@ -196,7 +209,7 @@ class Manager:
             with open(os.path.join(self.urdf_dir, "locations.yaml"), "wt") as f:
                 yaml.dump(dict, f, yaml.SafeDumper, default_flow_style=None, sort_keys=False, indent=3)
 
-        with open(os.path.join(self.urdf_dir, "fusion2urdf.txt"), "wt") as f:
+        with open(os.path.join(self.urdf_dir, "%ROBOT_NAME%.txt"), "wt") as f:
             git_info = self.get_git_info()
             if git_info:
                 git_info = f"\n\tusing {git_info}"
@@ -205,16 +218,16 @@ class Manager:
                 f.write(s)
                 f.write("\n")
 
-        utils.log(f"*** Generating {self.target_platform} configuration")
-        # The other target platforms remain as they are
+        utils.log(f"*** Generating {self.target_platform} configuration for {self.ros_version} ***")
+        # -------------------- ΝΕΑ ΛΟΓΙΚΗ --------------------
         if self.target_platform == 'pyBullet':
             io.write_hello_pybullet(config.name, self.save_dir)
-        elif self.target_platform == 'rviz':
-            io.copy_ros2(self.save_dir, config.name)
-        elif self.target_platform == 'Gazebo':
-            io.copy_gazebo(self.save_dir, config.name)
-        elif self.target_platform == 'MoveIt':
-            io.copy_moveit(self.save_dir, config.name)
+        elif self.target_platform in ['rviz', 'Gazebo', 'MoveIt']:
+            # Χρησιμοποιούμε την ενιαία συνάρτηση copy_template
+            io.copy_template(self.save_dir, self.robot_name, self.ros_version, self.target_platform)
+        else:
+            # Αν είναι URDF ή Xacro, δεν χρειάζεται template (ήδη γράψαμε το URDF/Xacro)
+            pass
 
         # Custom STL Export
         if self.save_mesh:

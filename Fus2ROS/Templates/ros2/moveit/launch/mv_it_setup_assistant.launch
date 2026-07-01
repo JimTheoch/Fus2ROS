@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+  <node name="moveit_setup_assistant" pkg="moveit_setup_assistant" type="moveit_setup_assistant" args="--urdf_path=$(find %ROBOT_NAME%)/urdf/%ROBOT_NAME%.xacro" />
+</launch>

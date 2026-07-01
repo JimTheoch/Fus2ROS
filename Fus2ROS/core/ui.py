@@ -314,6 +314,7 @@ class MyInputChangedHandler(adsk.core.InputChangedEventHandler):
             inertia_precision = inputs.itemById('inertia_precision')
             target_units = inputs.itemById('target_units')
             target_platform = inputs.itemById('target_platform')
+            ros_version = inputs.itemById('ros_version')  # NEW
             preview_group = inputs.itemById('preview_group')
             root_dropdown = inputs.itemById('root_component')
             selected_info = inputs.itemById('selected_info')
@@ -330,6 +331,7 @@ class MyInputChangedHandler(adsk.core.InputChangedEventHandler):
             assert isinstance(inertia_precision, adsk.core.DropDownCommandInput)
             assert isinstance(target_units, adsk.core.DropDownCommandInput)
             assert isinstance(target_platform, adsk.core.DropDownCommandInput)
+            assert isinstance(ros_version, adsk.core.DropDownCommandInput)  # NEW
             assert isinstance(preview_group, adsk.core.GroupCommandInput)
 
             has_dups = has_duplicate_instances(manager.Manager.root)
@@ -369,6 +371,7 @@ class MyInputChangedHandler(adsk.core.InputChangedEventHandler):
                     inertia_precision.selectedItem.name, 
                     target_units.selectedItem.name, 
                     target_platform.selectedItem.name,
+                    ros_version.selectedItem.name,  # NEW
                     None,
                     selected_root
                 )
@@ -398,6 +401,7 @@ class MyInputChangedHandler(adsk.core.InputChangedEventHandler):
                     inertia_precision.selectedItem.name, 
                     target_units.selectedItem.name, 
                     target_platform.selectedItem.name,
+                    ros_version.selectedItem.name,  # NEW
                     None,
                     selected_root
                 )
@@ -603,11 +607,17 @@ class MyCreatedHandler(adsk.core.CommandCreatedEventHandler):
             di.add('cm', False, '')
             di.add('m', True, '')
 
-            # Target Platform (now with URDF, Xacro and the rest)
+            # ROS Version (NEW)
+            di = inputs.addDropDownCommandInput('ros_version', 'ROS Version', adsk.core.DropDownStyles.TextListDropDownStyle)
+            di = di.listItems
+            di.add('ROS 2', True, '')
+            di.add('ROS 1', False, '')
+
+            # Target Platform
             di = inputs.addDropDownCommandInput('target_platform', 'Target Platform', adsk.core.DropDownStyles.TextListDropDownStyle)
             di = di.listItems
-            di.add('URDF', True, '')      # NEW
-            di.add('Xacro', False, '')    # NEW
+            di.add('URDF', True, '')
+            di.add('Xacro', False, '')
             di.add('pyBullet', False, '')
             di.add('rviz', False, '')
             di.add('Gazebo', False, '')

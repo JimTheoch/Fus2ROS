@@ -6,20 +6,17 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
-
-
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
                 [
-                    FindPackageShare("fusion2urdf"),
+                    FindPackageShare("%ROBOT_NAME%"),
                     "urdf",
-                    "fusion2urdf.xacro",
+                    "%ROBOT_NAME%.xacro",
                 ]
             ),
-
         ]
     )
 
@@ -41,7 +38,7 @@ def generate_launch_description():
 
     rviz_config_file = PathJoinSubstitution(
         [
-            FindPackageShare("fusion2urdf"),
+            FindPackageShare("%ROBOT_NAME%"),
             "launch",
             "urdf.rviz",
         ]
