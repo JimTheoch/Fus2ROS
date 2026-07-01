@@ -2,12 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
-
 [![ROS 1](https://img.shields.io/badge/ROS_1-Kinetic%2B-brightgreen)](http://wiki.ros.org/)
 [![ROS 2](https://img.shields.io/badge/ROS_2-Foxy%2B-brightgreen)](https://docs.ros.org/)
 
-[![ROS 1](https://img.shields.io/badge/ROS_1-Kinetic+-brightgreen)](http://wiki.ros.org/)
-[![ROS 2](https://img.shields.io/badge/ROS_2-Foxy+-brightgreen)](https://docs.ros.org/)
 
 
 **Fus2ROS** is a powerful Fusion 360 add‑in that exports your CAD assemblies to URDF/Xacro files, ready for ROS, Gazebo, MoveIt, and pyBullet.
